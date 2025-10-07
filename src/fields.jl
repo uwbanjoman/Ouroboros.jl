@@ -34,7 +34,8 @@ function init_field3D(nx::Int, ny::Int, nz::Int; Δt=0.01f0, Δx=1.0f0, extras=D
     C = CuArray(C_cpu)
     Q = CuArray(Q_cpu)
     #I = CuArray(I_cpu)
-    I = CuArray(zeros(Float32, nx, ny, nz, 3))
+    #I = CuArray(zeros(Float32, nx, ny, nz, 3))
+    I = CUDA.fill(SVector{3,Float32}(0,0,0), nx, ny, nz)
     ρ = CuArray(ρ_cpu)
     τ = CuArray(τ_cpu)
 
