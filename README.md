@@ -2,11 +2,10 @@
 
 Ouroboros.jl: A Unified Computational Laboratory for consciousness, matter, and energy evolution and Emergent Physics
 
-abstract
+abstract  
 Ouroboros.jl is a computational framework that models the evolution of consciousness, matter, and energy as interdependent fields within a unified dynamical system. The model represents time, 
 spatial distribution, and field interactions as a coherent structure, enabling exploration of emergent phenomena across scales—from microscopic to cosmological—while maintaining internal consistency with 
-conservation principles and symmetries. Its conceptual foundation is rooted in the idea that consciousness is a field that organizes and manifests observable reality, and that its evolution can be formalized 
-alongside conventional physical fields.
+conservation principles and symmetries. Its conceptual foundation is rooted in the idea that consciousness is a field that organizes and manifests observable reality, and that its evolution can be formalized alongside conventional physical fields.
 
 Introduction
 Modern scientific research increasingly relies on computational models to explore complex, multi-scale phenomena. 
