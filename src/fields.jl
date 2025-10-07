@@ -119,7 +119,8 @@ end
 function kernel_leapfrog_gpu!(
     C::CuDeviceArray{Float32,3},
     Q::CuDeviceArray{Float32,3},
-    I::CuDeviceArray{Float32,4},
+    #I::CuDeviceArray{Float32,4},
+    I::CuDeviceArray{SVector{3,Float32},3},
     ρ::CuDeviceArray{Float32,3},
     τ::CuDeviceArray{Float32,3},
     Δt::Float32
