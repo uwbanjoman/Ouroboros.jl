@@ -96,43 +96,43 @@ end
 function kernel_leapfrog_gpu!(
     C::CuDeviceArray{Float32,3},
     Q::CuDeviceArray{Float32,3},
-    I::CuDeviceArray{Float32,4},
+    I::CuDeviceArray{Float32,4},  # (3,nx,ny,nz)
     ρ::CuDeviceArray{Float32,3},
     τ::CuDeviceArray{Float32,3},
     Δt::Float32
 )
-    i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
-    j = (blockIdx().y - 1) * blockDim().y + threadIdx().y
-    k = (blockIdx().z - 1) * blockDim().z + threadIdx().z
+    # Bereken globale 3D indices
+    i = (blockIdx().x-1) * blockDim().x + threadIdx().x
+    j = (blockIdx().y-1) * blockDim().y + threadIdx().y
+    k = (blockIdx().z-1) * blockDim().z + threadIdx().z
 
     nx, ny, nz = size(C)
 
-    if i <= nx && j <= ny && k <= nz
+    if 1 <= i <= nx && 1 <= j <= ny && 1 <= k <= nz
         @inbounds begin
-            # Constante epsilon expliciet Float32
-            eps = Float32(1e-6)
+            eps = 1e-6f0
 
-            # Som van de I-componenten (3D)
-            I_sum = Float32(I[1,i,j,k] + I[2,i,j,k] + I[3,i,j,k])
+            # Som over I in eerste dimensie
+            I_sum = I[1,i,j,k] + I[2,i,j,k] + I[3,i,j,k]
 
-            # Haal huidige waarden op en forceer Float32
-            Cijk = Float32(C[i,j,k])
-            Qijk = Float32(Q[i,j,k])
-            rho  = Float32(ρ[i,j,k])
-            tau  = Float32(τ[i,j,k])
+            # Current values
+            Cijk = C[i,j,k]
+            Qijk = Q[i,j,k]
+            rho  = ρ[i,j,k]
+            tau  = τ[i,j,k]
 
             # Leapfrog update
             Cnew = Cijk + Δt * (Qijk - I_sum) / (rho + eps)
             Qnew = Qijk + Δt * (Cnew - tau)
 
-            # Schrijf terug naar arrays
+            # Schrijf terug
             C[i,j,k] = Cnew
             Q[i,j,k] = Qnew
 
-            # Update I-componenten
-            I[1,i,j,k] = Float32(0.99) * Float32(I[1,i,j,k]) + Float32(0.01) * Cnew
-            I[2,i,j,k] = Float32(0.99) * Float32(I[2,i,j,k]) + Float32(0.01) * Cnew
-            I[3,i,j,k] = Float32(0.99) * Float32(I[3,i,j,k]) + Float32(0.01) * Cnew
+            # Update I vector component-wise
+            @inbounds for comp in 1:3
+                I[comp,i,j,k] = 0.99f0 * I[comp,i,j,k] + 0.01f0 * Cnew
+            end
         end
     end
 
