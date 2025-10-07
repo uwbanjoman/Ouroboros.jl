@@ -18,34 +18,35 @@ end
 # ------------------------------
 # Initialization
 # ------------------------------
-function init_field3D(nx::Int, ny::Int, nz::Int; Δt=0.01f0, Δx=1.0f0, extras=Dict{Symbol,CuArray}())
-    # Kernvelden op CPU
+function init_field3D(nx::Int, ny::Int, nz::Int;
+                      Δt::Float32=0.01f0, Δx::Float32=1.0f0,
+                      extras::Dict{Symbol, CuArray{Float32,3}}=Dict{Symbol,CuArray{Float32,3}}())
+    # CPU arrays
     C_cpu = zeros(Float32, nx, ny, nz)
     Q_cpu = zeros(Float32, nx, ny, nz)
-    #I_cpu = zeros(Float32, nx, ny, nz)
-     # I als 3D vectorveld
-    I_cpu = [SVector{3,Float32}(0f0,0f0,0f0) for i=1:nx, j=1:ny, k=1:nz]
+    I_cpu = fill(SVector{3,Float32}(0f0,0f0,0f0), nx, ny, nz)
     ρ_cpu = ones(Float32, nx, ny, nz)
     τ_cpu = zeros(Float32, nx, ny, nz)
 
-    # Pulse in het midden
+    # Pulse in the center
     C_cpu[nx ÷ 2, ny ÷ 2, nz ÷ 2] = 1f0
 
-    # Upload naar GPU
+    # Upload to GPU
     C = CuArray(C_cpu)
     Q = CuArray(Q_cpu)
     I = CuArray(I_cpu)
     ρ = CuArray(ρ_cpu)
     τ = CuArray(τ_cpu)
-
-    # Extras naar GPU als er iets is opgegeven
-    extras_gpu = Dict{Symbol,CuArray}()
+    
+    # Upload extras
+    extras_gpu = Dict{Symbol, CuArray{Float32,3}}()
     for (k,v) in extras
         extras_gpu[k] = CuArray(v)
     end
 
-    return Field3D(C, Q, I, ρ, τ, Δt, Δx, nx, ny, nz, extras_gpu)
+    return Field3D(C, Q, I, ρ, τ, extras_gpu, Δt, Δx, nx, ny, nz)
 end
+
 
 # ------------------------------
 # Leap-frog Kernel Update
