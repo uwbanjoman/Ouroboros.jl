@@ -70,7 +70,7 @@ The framework embodies three key principles:
   Symmetric, Energy-Preserving Evolution: Leap-frog integration ensures numerical stability and preserves key invariants.
   Unified Ontology: Energy, charge, and information are different facets of a single evolving system, allowing cross-domain exploration.
 
-Conclusion and Future Work
+Conclusion and Future Work  
 Ouroboros.jl is a computational platform that allows researchers to test hypotheses across multiple domains without committing to a single physical interpretation.  
 Future developments include quantum layers, general relativity-inspired curvature, entropy/information tracking, and real-time visualization at scale.  
 It is a versatile numerical laboratory for exploring emergent phenomena in complex systems.
