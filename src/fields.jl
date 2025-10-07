@@ -144,7 +144,7 @@ function kernel_leapfrog_gpu!(
     return
 end
 
-# this combines with above kernel_leapfrog! function
+# this combines with above kernel_leapfrog_gpu! function
 function leapfrog3D!(F::Field3D)
     threads = (8,8,8)
     blocks = (
@@ -152,6 +152,8 @@ function leapfrog3D!(F::Field3D)
         cld(F.ny, threads[2]),
         cld(F.nz, threads[3])
     )
-    @cuda threads=threads blocks=blocks kernel_leapfrog!(F.C, F.Q, F.I, F.ρ, F.τ, F.Δt)
+    @cuda threads=threads blocks=blocks kernel_leapfrog_gpu!(
+        F.C, F.Q, F.I, F.ρ, F.τ, F.Δt
+    )
     return nothing
 end
