@@ -100,7 +100,7 @@ end
 function kernel_leapfrog!(
     C::CuDeviceArray{Float32,3},
     Q::CuDeviceArray{Float32,3},
-    I::CuDeviceArray{Float32,3},
+    I::CuDeviceArray{Float32,4},  # vector field: (3,nx,ny,nz)
     ρ::CuDeviceArray{Float32,3},
     τ::CuDeviceArray{Float32,3},
     Δt::Float32
@@ -114,13 +114,20 @@ function kernel_leapfrog!(
     if i <= nx && j <= ny && k <= nz
         @inbounds begin
             eps = Float32(1e-6)
-            C[i,j,k] += Δt * (Q[i,j,k] - I[i,j,k]) / (ρ[i,j,k] + eps)
+
+            # Update scalar fields
+            C[i,j,k] += Δt * (Q[i,j,k] - sum(I[:,i,j,k])) / (ρ[i,j,k] + eps)
             Q[i,j,k] += Δt * (C[i,j,k] - τ[i,j,k])
-            I[i,j,k] = Float32(0.99) * I[i,j,k] + Float32(0.01) * C[i,j,k]
+
+            # Update vector field component-wise
+            for d in 1:3
+                I[d,i,j,k] = 0.99f0 * I[d,i,j,k] + 0.01f0 * C[i,j,k]
+            end
         end
     end
     return
 end
+
 
 # this combines with above kernel_leapfrog! function
 function leapfrog3D!(F::Field3D; Δt::Float32=0.01f0)
