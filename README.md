@@ -37,9 +37,8 @@ I^{n+1} &= I^n + \Delta t \, f_I(C^n, Q^n, I^n; \rho, \tau)
 where $f_C$, $f_Q$, and $f_I$ include Laplacian coupling and damping terms.
 
 Numerical Implementation
-Ouroboros.jl is implemented in Julia with full GPU acceleration.
-Key features:
-
+Ouroboros.jl is implemented in Julia with full GPU acceleration.  
+Key features:  
   1D, 2D, and 3D grid support
   Modular kernel functions for field updates
   Makie-based visualization for real-time monitoring and GIF generation
