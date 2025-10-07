@@ -1,7 +1,6 @@
 # Ouroboros.jl
 
 Ouroboros.jl: A Unified Computational Laboratory for Field Evolution and Emergent Physics
-author Jan Bouwman (your.email@example.com)
 
 abstract
 Ouroboros.jl is a Julia-based framework for simulating continuous field evolution across space and time. 
