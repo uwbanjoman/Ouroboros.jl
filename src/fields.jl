@@ -4,7 +4,8 @@
 struct Field3D
     C::CuArray{Float32,3}      # Consciousness
     Q::CuArray{Float32,3}      # Dual field / matter
-    I::CuArray{SVector{3,Float32},4}  # Interaction / energy flow (vector field)
+    #I::CuArray{SVector{3,Float32},4}  # Interaction / energy flow (vector field)
+    I::CuArray{Float32,4}  # laatste dim = 3 voor vector
     ρ::CuArray{Float32,3}      # Charge / density
     τ::CuArray{Float32,3}      # Experienced time
     extras::Dict{Symbol,CuArray{Float32,3}} # domain specific extra fields
@@ -32,7 +33,8 @@ function init_field3D(nx::Int, ny::Int, nz::Int; Δt=0.01f0, Δx=1.0f0, extras=D
     # Upload naar GPU
     C = CuArray(C_cpu)
     Q = CuArray(Q_cpu)
-    I = CuArray(I_cpu)
+    #I = CuArray(I_cpu)
+    I = CuArray(zeros(Float32, nx, ny, nz, 3))
     ρ = CuArray(ρ_cpu)
     τ = CuArray(τ_cpu)
 
