@@ -6,7 +6,7 @@ Ouroboros.jl is a computational framework that models the evolution of conscious
 spatial distribution, and field interactions as a coherent structure, enabling exploration of emergent phenomena across scales—from microscopic to cosmological—while maintaining internal consistency with 
 conservation principles and symmetries. Its conceptual foundation is rooted in the idea that consciousness is a field that organizes and manifests observable reality, and that its evolution can be formalized alongside conventional physical fields.
 
-Introduction
+Introduction  
 Modern scientific research increasingly relies on computational models to explore complex, multi-scale phenomena. 
 Ouroboros.jl is designed as a numerical laboratory that unifies energy, charge, and matter into a single evolving system. 
 Its goal is not only to simulate known physics but to provide a sandbox for testing new hypotheses, discovering emergent behaviors, and exploring interactions across scales from the nano- to the cosmic.
