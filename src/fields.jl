@@ -95,32 +95,19 @@ end
 # below here is adjusted code
 # added later, might not be in the right file.
 # this combines with below leapfrog3D!() function
-function kernel_leapfrog!(
-    C::CuDeviceArray{Float32,3},
-    Q::CuDeviceArray{Float32,3},
-    I::CuDeviceArray{Float32,4},  # vector field: (3,nx,ny,nz)
-    ρ::CuDeviceArray{Float32,3},
-    τ::CuDeviceArray{Float32,3},
-    Δt::Float32
-)
+function kernel_leapfrog!(C, Q, I, ρ, τ, Δt)
     i = (blockIdx().x-1)*blockDim().x + threadIdx().x
     j = (blockIdx().y-1)*blockDim().y + threadIdx().y
     k = (blockIdx().z-1)*blockDim().z + threadIdx().z
 
     nx, ny, nz = size(C)
-
     if i <= nx && j <= ny && k <= nz
         @inbounds begin
-            eps = Float32(1e-6)
-
-            # Update scalar fields
-            C[i,j,k] += Δt * (Q[i,j,k] - sum(I[:,i,j,k])) / (ρ[i,j,k] + eps)
+            eps = 1e-6f0
+            # Scalar update example
+            C[i,j,k] += Δt * (Q[i,j,k] - sum(I[i,j,k])) / (ρ[i,j,k] + eps)
             Q[i,j,k] += Δt * (C[i,j,k] - τ[i,j,k])
-
-            # Update vector field component-wise
-            for d in 1:3
-                I[d,i,j,k] = 0.99f0 * I[d,i,j,k] + 0.01f0 * C[i,j,k]
-            end
+            I[i,j,k] = 0.99f0 * I[i,j,k] + 0.01f0 * SVector{3,Float32}(C[i,j,k], C[i,j,k], C[i,j,k])
         end
     end
     return
@@ -165,8 +152,6 @@ function leapfrog3D!(F::Field3D)
         cld(F.ny, threads[2]),
         cld(F.nz, threads[3])
     )
-    @cuda threads=threads blocks=blocks kernel_leapfrog_gpu!(
-        F.C, F.Q, F.I, F.ρ, F.τ, F.Δt
-    )
+    @cuda threads=threads blocks=blocks kernel_leapfrog!(F.C, F.Q, F.I, F.ρ, F.τ, F.Δt)
     return nothing
 end
