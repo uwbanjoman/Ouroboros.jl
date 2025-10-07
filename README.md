@@ -17,8 +17,8 @@ Core Framework
 Field Definitions
 The fundamental state in Ouroboros.jl is defined by three coupled fields:
 
-  Charge density or potential field
-  Energy flow or kinetic field
+  Charge density or potential field  
+  Energy flow or kinetic field  
   Interaction field mediating the coupling between $C$ and $Q$
 
 Additional parameters include:
