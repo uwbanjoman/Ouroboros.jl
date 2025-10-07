@@ -53,8 +53,10 @@ end
 # Leap-frog Kernel Update
 # ------------------------------
 function kernel_update_field!(F::Field3D)
-    @cuda threads=256 blocks=ceil(Int,F.nx*F.ny*F.nz/256) update_kernel!(
-        F.C, F.Q, F.I, F.ρ, F.τ, F.Δt, F.Δx, F.nx, F.ny, F.nz)
+    threads = 256
+    blocks = ceil(Int, F.nx * F.ny * F.nz / threads)
+    @cuda threads=threads blocks=blocks update_kernel!(
+        F.C, F.Q, F.I, F.ρ, F.τ, F.Δt, F.Δx, F.nx, F.ny, F.nz)
 end
 
 function update_kernel!(
