@@ -57,42 +57,38 @@ function kernel_update_field!(F::Field3D)
         F.C, F.Q, F.I, F.ρ, F.τ, F.Δt, F.Δx, F.nx, F.ny, F.nz)
 end
 
-@cuda function update_kernel!(
-        C, Q, I, ρ, τ, Δt, Δx, nx, ny, nz)
+function update_kernel!(
+    C::CuDeviceArray{Float32,3},
+    Q::CuDeviceArray{Float32,3},
+    I::CuDeviceArray{Float32,4},  # 3×nx×ny×nz
+    ρ::CuDeviceArray{Float32,3},
+    τ::CuDeviceArray{Float32,3},
+    Δt::Float32,
+    Δx::Float32,
+    nx::Int, ny::Int, nz::Int
+)
+    idx = (blockIdx().x-1) * blockDim().x + threadIdx().x
+    total = nx * ny * nz
 
-    idx = (blockIdx().x - 1) * blockDim().x + threadIdx().x
-    total = nx*ny*nz
-    if idx > total return end
+    if idx <= total
+        # Omzetten van lineaire index naar 3D-coördinaten
+        k = div(idx-1, nx*ny) + 1
+        j = div(idx-1 - (k-1)*nx*ny, nx) + 1
+        i = idx - (k-1)*nx*ny - (j-1)*nx
 
-    # Compute 3D indices
-    k = fld(idx-1, nx*ny) + 1
-    j = fld(idx-1 - (k-1)*nx*ny, nx) + 1
-    i = idx - (k-1)*nx*ny - (j-1)*nx
+        @inbounds begin
+            eps = 1e-6f0
+            # Handmatige som van I[1:3,i,j,k]
+            I_sum = I[1,i,j,k] + I[2,i,j,k] + I[3,i,j,k]
 
-    # 3D neighbors with periodic boundary
-    ip = i < nx ? i+1 : 1
-    im = i > 1 ? i-1 : nx
-    jp = j < ny ? j+1 : 1
-    jm = j > 1 ? j-1 : ny
-    kp = k < nz ? k+1 : 1
-    km = k > 1 ? k-1 : nz
-
-    # Simple Laplacian / diffusion approximation for C
-    lap_C = (C[ip,j,k] + C[im,j,k] + C[i,jp,k] + C[i,jm,k] +
-             C[i,j,kp] + C[i,j,km] - 6f0*C[i,j,k]) / (Δx^2)
-
-    # Update rules (conceptual)
-    C[i,j,k] += Δt * (lap_C - Q[i,j,k] + ρ[i,j,k])
-    Q[i,j,k] += Δt * (C[i,j,k] - Q[i,j,k]*0.1f0)
-    ρ[i,j,k] += Δt * (-lap_C*0.01f0)
-    τ[i,j,k] += Δt
-
-    # Interaction field update (gradient approximation)
-    I[i,j,k] = SVector(
-        (C[ip,j,k] - C[im,j,k])/(2f0*Δx),
-        (C[i,jp,k] - C[i,jm,k])/(2f0*Δx),
-        (C[i,j,kp] - C[i,j,km])/(2f0*Δx)
-    )
+            C[i,j,k] += Δt * (Q[i,j,k] - I_sum) / (ρ[i,j,k] + eps)
+            Q[i,j,k] += Δt * (C[i,j,k] - τ[i,j,k])
+            I[1,i,j,k] = 0.99f0 * I[1,i,j,k] + 0.01f0 * C[i,j,k]
+            I[2,i,j,k] = 0.99f0 * I[2,i,j,k] + 0.01f0 * C[i,j,k]
+            I[3,i,j,k] = 0.99f0 * I[3,i,j,k] + 0.01f0 * C[i,j,k]
+        end
+    end
+    return
 end
 
 # below here is adjusted code
