@@ -10,7 +10,7 @@ The framework leverages GPU-accelerated leap-frog integrators to enable stable, 
 
 Introduction
 Modern scientific research increasingly relies on computational models to explore complex, multi-scale phenomena. 
-Ouroboros.jl is designed as a \emph{numerical laboratory} that unifies energy, charge, and matter into a single evolving system. 
+Ouroboros.jl is designed as a numerical laboratory that unifies energy, charge, and matter into a single evolving system. 
 Its goal is not only to simulate known physics but to provide a sandbox for testing new hypotheses, discovering emergent behaviors, and exploring interactions across scales from the nano- to the cosmic.
 
 Core Framework
