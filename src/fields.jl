@@ -160,16 +160,15 @@ function kernel_leapfrog_gpu!(
 end
 
 # this combines with above kernel_leapfrog! function
-function leapfrog3D!(F::Field3D; Δt::Float32=0.01f0)
+function leapfrog3D!(F::Field3D)
     threads = (8,8,8)
-    blocks = ceil.(Int, size(F.C) ./ threads)
-
-    # kernvelden
-    @cuda threads=threads blocks=blocks kernel_leapfrog!(F.C, F.Q, F.I, F.ρ, F.τ, Δt)
-
-    # extra velden
-    for (_, field) in F.extras
-        @cuda threads=threads blocks=blocks kernel_leapfrog!(field, field, field, field, field, Δt)
-    end
+    blocks = (
+        cld(F.nx, threads[1]),
+        cld(F.ny, threads[2]),
+        cld(F.nz, threads[3])
+    )
+    @cuda threads=threads blocks=blocks kernel_leapfrog_gpu!(
+        F.C, F.Q, F.I, F.ρ, F.τ, F.Δt
+    )
     return nothing
 end
