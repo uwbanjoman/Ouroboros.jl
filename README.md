@@ -14,8 +14,8 @@ Its goal is not only to simulate known physics but to provide a sandbox for test
 
 Core Framework
 
-Field Definitions
-The fundamental state in Ouroboros.jl is defined by three coupled fields:
+Field Definitions  
+The fundamental state in Ouroboros.jl is defined by three coupled fields:  
 
   Charge density or potential field  
   Energy flow or kinetic field  
