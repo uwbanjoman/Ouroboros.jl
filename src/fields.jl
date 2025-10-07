@@ -109,33 +109,36 @@ function kernel_leapfrog_gpu!(
 
     if i <= nx && j <= ny && k <= nz
         @inbounds begin
+            # Constante epsilon expliciet Float32
             eps = Float32(1e-6)
 
-            I_sum = I[1, i, j, k] + I[2, i, j, k] + I[3, i, j, k]
+            # Som van de I-componenten (3D)
+            I_sum = Float32(I[1,i,j,k] + I[2,i,j,k] + I[3,i,j,k])
 
-            Cijk = C[i, j, k]
-            Qijk = Q[i, j, k]
-            rho = ρ[i, j, k]
-            tau = τ[i, j, k]
+            # Haal huidige waarden op en forceer Float32
+            Cijk = Float32(C[i,j,k])
+            Qijk = Float32(Q[i,j,k])
+            rho  = Float32(ρ[i,j,k])
+            tau  = Float32(τ[i,j,k])
 
+            # Leapfrog update
             Cnew = Cijk + Δt * (Qijk - I_sum) / (rho + eps)
             Qnew = Qijk + Δt * (Cnew - tau)
 
-            C[i, j, k] = Cnew
-            Q[i, j, k] = Qnew
+            # Schrijf terug naar arrays
+            C[i,j,k] = Cnew
+            Q[i,j,k] = Qnew
 
-            I1 = I[1, i, j, k]
-            I2 = I[2, i, j, k]
-            I3 = I[3, i, j, k]
-
-            I[1, i, j, k] = 0.99f0 * I1 + 0.01f0 * Cnew
-            I[2, i, j, k] = 0.99f0 * I2 + 0.01f0 * Cnew
-            I[3, i, j, k] = 0.99f0 * I3 + 0.01f0 * Cnew
+            # Update I-componenten
+            I[1,i,j,k] = Float32(0.99) * Float32(I[1,i,j,k]) + Float32(0.01) * Cnew
+            I[2,i,j,k] = Float32(0.99) * Float32(I[2,i,j,k]) + Float32(0.01) * Cnew
+            I[3,i,j,k] = Float32(0.99) * Float32(I[3,i,j,k]) + Float32(0.01) * Cnew
         end
     end
 
     return
 end
+
 
 
 # this combines with above kernel_leapfrog_gpu! function
