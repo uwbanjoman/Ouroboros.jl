@@ -128,6 +128,36 @@ function kernel_leapfrog!(
     return
 end
 
+function kernel_leapfrog_gpu!(
+    C::CuDeviceArray{Float32,3},
+    Q::CuDeviceArray{Float32,3},
+    I::CuDeviceArray{Float32,4},
+    ρ::CuDeviceArray{Float32,3},
+    τ::CuDeviceArray{Float32,3},
+    Δt::Float32
+)
+    i = (blockIdx().x-1)*blockDim().x + threadIdx().x
+    j = (blockIdx().y-1)*blockDim().y + threadIdx().y
+    k = (blockIdx().z-1)*blockDim().z + threadIdx().z
+
+    nx, ny, nz = size(C)
+
+    if i <= nx && j <= ny && k <= nz
+        @inbounds begin
+            eps = 1e-6f0
+
+            # sum(I[:,i,j,k]) → handmatig uitgeschreven omdat sum niet GPU-compatibel is
+            I_sum = I[1,i,j,k] + I[2,i,j,k] + I[3,i,j,k]
+
+            C[i,j,k] += Δt * (Q[i,j,k] - I_sum) / (ρ[i,j,k] + eps)
+            Q[i,j,k] += Δt * (C[i,j,k] - τ[i,j,k])
+            I[1,i,j,k] = 0.99f0 * I[1,i,j,k] + 0.01f0 * C[i,j,k]
+            I[2,i,j,k] = 0.99f0 * I[2,i,j,k] + 0.01f0 * C[i,j,k]
+            I[3,i,j,k] = 0.99f0 * I[3,i,j,k] + 0.01f0 * C[i,j,k]
+        end
+    end
+    return
+end
 
 # this combines with above kernel_leapfrog! function
 function leapfrog3D!(F::Field3D; Δt::Float32=0.01f0)
