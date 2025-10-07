@@ -22,7 +22,9 @@ function init_field3D(nx::Int, ny::Int, nz::Int; Δt=0.01f0, Δx=1.0f0, extras=D
     # Kernvelden op CPU
     C_cpu = zeros(Float32, nx, ny, nz)
     Q_cpu = zeros(Float32, nx, ny, nz)
-    I_cpu = zeros(Float32, nx, ny, nz)
+    #I_cpu = zeros(Float32, nx, ny, nz)
+     # I als 3D vectorveld
+    I_cpu = [SVector{3,Float32}(0f0,0f0,0f0) for i=1:nx, j=1:ny, k=1:nz]
     ρ_cpu = ones(Float32, nx, ny, nz)
     τ_cpu = zeros(Float32, nx, ny, nz)
 
