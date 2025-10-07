@@ -18,8 +18,8 @@ end
 # ------------------------------
 # Initialization
 # ------------------------------
-function init_field3D(nx::Int, ny::Int, nz::Int; Δt=0.01f0, Δx=1.0f0)
-    # Maak CPU arrays
+function init_field3D(nx::Int, ny::Int, nz::Int; Δt=0.01f0, Δx=1.0f0, extras=Dict{Symbol,CuArray}())
+    # Kernvelden op CPU
     C_cpu = zeros(Float32, nx, ny, nz)
     Q_cpu = zeros(Float32, nx, ny, nz)
     I_cpu = zeros(Float32, nx, ny, nz)
@@ -29,14 +29,20 @@ function init_field3D(nx::Int, ny::Int, nz::Int; Δt=0.01f0, Δx=1.0f0)
     # Pulse in het midden
     C_cpu[nx ÷ 2, ny ÷ 2, nz ÷ 2] = 1f0
 
-    # Upload alles naar GPU
+    # Upload naar GPU
     C = CuArray(C_cpu)
     Q = CuArray(Q_cpu)
     I = CuArray(I_cpu)
     ρ = CuArray(ρ_cpu)
     τ = CuArray(τ_cpu)
 
-    return Field3D(C, Q, I, ρ, τ, Δt, Δx, nx, ny, nz)
+    # Extras naar GPU als er iets is opgegeven
+    extras_gpu = Dict{Symbol,CuArray}()
+    for (k,v) in extras
+        extras_gpu[k] = CuArray(v)
+    end
+
+    return Field3D(C, Q, I, ρ, τ, Δt, Δx, nx, ny, nz, extras_gpu)
 end
 
 # code with extras added
