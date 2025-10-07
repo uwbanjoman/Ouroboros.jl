@@ -21,22 +21,14 @@ The evolution of the fields reflects both the progression of experienced time an
 
 The model is composed of the following interacting fields:
 
-Field	Symbol	Conceptual Role
-Consciousness	
-𝐶
-C	Describes the intensity of awareness; governs potential for order and emergent structure.
-Matter / Dual Component	
-𝑄
-Q	Represents complementary aspects of the system (mass, form, or quantum-like duality).
-Interaction / Energy Flow	
-𝐼
-I	Captures the directional exchange of energy or information between regions of the field.
-Charge / Density	
-𝜌
-ρ	Analogous to classical charge or mass density, mediating local interactions.
-Experienced Time	
-𝜏
-τ	Encodes the subjective temporal evolution of the field, providing an intrinsic clock.
+| Field                     | Symbol | Conceptual Role                                                                           |
+| ------------------------- | ------ | ----------------------------------------------------------------------------------------- |
+| Consciousness             | (C)    | Describes the intensity of awareness; governs potential for order and emergent structure. |
+| Matter / Dual Component   | (Q)    | Represents complementary aspects of the system (mass, form, or quantum-like duality).     |
+| Interaction / Energy Flow | (I)    | Captures the directional exchange of energy or information between regions of the field.  |
+| Charge / Density          | (ρ)    | Analogous to classical charge or mass density, mediating local interactions.              |
+| Experienced Time          | (τ)    | Encodes the subjective temporal evolution of the field, providing an intrinsic clock.     |
+
 
 These fields collectively form a tensorial structure over a 3D grid, permitting a continuous and differentiable representation of the universe at multiple scales.
 
