@@ -27,13 +27,13 @@ Additional parameters include:
   $\rho$: local mass or density, controlling inertia and curvature
   $\tau$: temporal factor, scaling local evolution rates
 
-Leap-Frog Integration
+Leap-Frog Integration  
 The fields evolve in time using a leap-frog integrator, chosen for its symmetry and energy-preserving properties.  
 In discrete form:
 
 $C^{n+1}$ = $C^n$ + $\Delta t \$, $f_C$($C^n$, $Q^n$, $I^n$; $\rho$, $\tau$)  
 $Q^{n+1}$ = $Q^n$ + $\Delta t \$, $f_Q$($C^n$, $Q^n$, $I^n$; $\rho$, $\tau$)  
-I^{n+1} &= I^n + \Delta t \, f_I(C^n, Q^n, I^n; \rho, \tau)
+$I^{n+1}$ = $I^n$ + $\Delta t \$, $f_I$($C^n$, $Q^n$, $I^n$; $\rho$, $\tau$)
 
 where $f_C$, $f_Q$, and $f_I$ include Laplacian coupling and damping terms.
 
@@ -45,27 +45,26 @@ Key features:
   Makie-based visualization for real-time monitoring and GIF generation
   Configurable physical parameters for rapid hypothesis testing
 
-Parallelization and Scalability
+Parallelization and Scalability  
 The leap-frog integrator is highly parallelizable, allowing simulation of large grids across multiple GPUs.  
 This makes the framework suitable for exploring large-scale systems like power grids, coupled physical networks, or even cosmological scenarios.
 
-Applications and Extensions
+Applications and Extensions  
 
-Electromagnetism
+Electromagnetism  
 By interpreting $C$ as charge and $Q$ as electric/magnetic fields, Ouroboros.jl can emulate Maxwell-like dynamics.
 
-Quantum Mechanics
+Quantum Mechanics  
 The fields can be extended to complex amplitudes, representing wavefunctions in quantum field theory.
 
-Relativity and Curvature
+Relativity and Curvature  
 $\rho$ and $\tau$ can be used to simulate local space-time deformation, providing a sandbox for testing general relativity-inspired field dynamics.
 
-Power Networks and Complex Systems
+Power Networks and Complex Systems  
 Ouroboros.jl naturally supports coupled multi-physics systems such as electricity, heat, and gas networks, enabling stability studies and optimization experiments.
 
-Design Philosophy
-The framework embodies three key principles:
-
+Design Philosophy  
+The framework embodies three key principles:  
   Minimal Foundation, Infinite Extension: A small set of variables can generate a wide range of behaviors.
   Symmetric, Energy-Preserving Evolution: Leap-frog integration ensures numerical stability and preserves key invariants.
   Unified Ontology: Energy, charge, and information are different facets of a single evolving system, allowing cross-domain exploration.
