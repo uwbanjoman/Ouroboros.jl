@@ -1,6 +1,5 @@
-# Ouroboros.jl
-
-Ouroboros.jl: A Unified Computational Laboratory for consciousness, matter, and energy evolution and Emergent Physics
+# Ouroboros.jl  
+A Unified Computational Laboratory for consciousness, matter, and energy evolution and Emergent Physics
 
 abstract  
 Ouroboros.jl is a computational framework that models the evolution of consciousness, matter, and energy as interdependent fields within a unified dynamical system. The model represents time, 
