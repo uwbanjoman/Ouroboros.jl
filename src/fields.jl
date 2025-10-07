@@ -18,34 +18,31 @@ end
 # ------------------------------
 # Initialization
 # ------------------------------
-function init_field3D(nx::Int, ny::Int, nz::Int;
-                      Δt::Float32=0.01f0, Δx::Float32=1.0f0,
-                      extras::Dict{Symbol, CuArray{Float32,3}}=Dict{Symbol,CuArray{Float32,3}}())
+function init_field3D(nx::Int, ny::Int, nz::Int; Δt=0.01f0, Δx=1.0f0, extras=Dict{Symbol,CuArray{Float32,3}}())
     # CPU arrays
     C_cpu = zeros(Float32, nx, ny, nz)
     Q_cpu = zeros(Float32, nx, ny, nz)
-    #I_cpu = fill(SVector{3,Float32}(0f0,0f0,0f0), nx, ny, nz)
-    I_cpu = zeros(Float32, nx, ny, nz, 3)   # 4D
+    I_cpu = [SVector{3,Float32}(0,0,0) for i in 1:nx, j in 1:ny, k in 1:nz]
     ρ_cpu = ones(Float32, nx, ny, nz)
     τ_cpu = zeros(Float32, nx, ny, nz)
 
-    # Pulse in the center
+    # Pulse in het midden
     C_cpu[nx ÷ 2, ny ÷ 2, nz ÷ 2] = 1f0
 
-    # Upload to GPU
+    # Upload naar GPU
     C = CuArray(C_cpu)
     Q = CuArray(Q_cpu)
     I = CuArray(I_cpu)
     ρ = CuArray(ρ_cpu)
     τ = CuArray(τ_cpu)
-    
-    # Upload extras
-    extras_gpu = Dict{Symbol, CuArray{Float32,3}}()
+
+    # extras ook naar GPU
+    gpu_extras = Dict{Symbol,CuArray{Float32,3}}()
     for (k,v) in extras
-        extras_gpu[k] = CuArray(v)
+        gpu_extras[k] = CuArray(v)
     end
 
-    return Field3D(C, Q, I, ρ, τ, extras_gpu, Δt, Δx, nx, ny, nz)
+    return Field3D(C, Q, I, ρ, τ, gpu_extras, Δt, Δx, nx, ny, nz)
 end
 
 
