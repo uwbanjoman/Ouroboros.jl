@@ -17,15 +17,20 @@ end
 # ------------------------------
 # Initialization
 # ------------------------------
-function init_field3D(nx, ny, nz; Δt=0.01f0, Δx=1.0f0)
-    # Initialize arrays on GPU
-    C = CUDA.fill(Float32(1e6), nx, ny, nz)  # high initial consciousness
-    Q = CUDA.fill(0.0f0, nx, ny, nz)
-    I = CUDA.zeros(SVector{3,Float32}, nx, ny, nz)
-    ρ = CUDA.fill(Float32(1e6), nx, ny, nz)  # high initial density
-    τ = CUDA.zeros(Float32, nx, ny, nz)
+function init_field3D(nx::Int, ny::Int, nz::Int; Δt=0.01f0, Δx=1.0f0)
+    C_cpu = zeros(Float32, nx, ny, nz)
+    Q_cpu = zeros(Float32, nx, ny, nz)
+    I_cpu = zeros(Float32, nx, ny, nz)
+    ρ_cpu = ones(Float32, nx, ny, nz)
+    τ_cpu = zeros(Float32, nx, ny, nz)
 
-    return Field3D(C, Q, I, ρ, τ, Δt, Δx, nx, ny, nz)
+    # Localized pulse in the center
+    C_cpu[nx ÷ 2, ny ÷ 2, nz ÷ 2] = 1f0
+
+    # Upload to GPU
+    C, Q, I, ρ, τ = CuArray.(Ref.((C_cpu, Q_cpu, I_cpu, ρ_cpu, τ_cpu)))[]
+
+    return Field3D(C, Q, I, ρ, τ, Δt, Δx, nx, ny, nz)
 end
 
 # ------------------------------
