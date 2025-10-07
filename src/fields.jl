@@ -18,17 +18,22 @@ end
 # Initialization
 # ------------------------------
 function init_field3D(nx::Int, ny::Int, nz::Int; Δt=0.01f0, Δx=1.0f0)
+    # Maak CPU arrays
     C_cpu = zeros(Float32, nx, ny, nz)
     Q_cpu = zeros(Float32, nx, ny, nz)
     I_cpu = zeros(Float32, nx, ny, nz)
     ρ_cpu = ones(Float32, nx, ny, nz)
     τ_cpu = zeros(Float32, nx, ny, nz)
 
-    # Localized pulse in the center
+    # Pulse in het midden
     C_cpu[nx ÷ 2, ny ÷ 2, nz ÷ 2] = 1f0
 
-    # Upload to GPU
-    C, Q, I, ρ, τ = CuArray.(Ref.((C_cpu, Q_cpu, I_cpu, ρ_cpu, τ_cpu)))[]
+    # Upload alles naar GPU
+    C = CuArray(C_cpu)
+    Q = CuArray(Q_cpu)
+    I = CuArray(I_cpu)
+    ρ = CuArray(ρ_cpu)
+    τ = CuArray(τ_cpu)
 
     return Field3D(C, Q, I, ρ, τ, Δt, Δx, nx, ny, nz)
 end
