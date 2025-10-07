@@ -119,38 +119,44 @@ end
 function kernel_leapfrog_gpu!(
     C::CuDeviceArray{Float32,3},
     Q::CuDeviceArray{Float32,3},
-    I::CuDeviceArray{SVector{3,Float32},3},
+    I::CuDeviceArray{Float32,4},
     ρ::CuDeviceArray{Float32,3},
     τ::CuDeviceArray{Float32,3},
     Δt::Float32
 )
-    i = (blockIdx().x-1)*blockDim().x + threadIdx().x
-    j = (blockIdx().y-1)*blockDim().y + threadIdx().y
-    k = (blockIdx().z-1)*blockDim().z + threadIdx().z
+    i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
+    j = (blockIdx().y - 1) * blockDim().y + threadIdx().y
+    k = (blockIdx().z - 1) * blockDim().z + threadIdx().z
 
     nx, ny, nz = size(C)
 
     if i <= nx && j <= ny && k <= nz
         @inbounds begin
-            eps = 1e-6f0
+            eps = Float32(1e-6)
 
-            Iijk = I[i,j,k]
-            I_sum = Iijk[1] + Iijk[2] + Iijk[3]
+            I_sum = I[1, i, j, k] + I[2, i, j, k] + I[3, i, j, k]
 
-            C_new = C[i,j,k] + Δt * (Q[i,j,k] - I_sum) / (ρ[i,j,k] + eps)
-            Q_new = Q[i,j,k] + Δt * (C_new - τ[i,j,k])
+            Cijk = C[i, j, k]
+            Qijk = Q[i, j, k]
+            rho = ρ[i, j, k]
+            tau = τ[i, j, k]
 
-            I_new = @SVector [
-                0.99f0 * Iijk[1] + 0.01f0 * C_new,
-                0.99f0 * Iijk[2] + 0.01f0 * C_new,
-                0.99f0 * Iijk[3] + 0.01f0 * C_new
-            ]
+            Cnew = Cijk + Δt * (Qijk - I_sum) / (rho + eps)
+            Qnew = Qijk + Δt * (Cnew - tau)
 
-            C[i,j,k] = C_new
-            Q[i,j,k] = Q_new
-            I[i,j,k] = I_new
+            C[i, j, k] = Cnew
+            Q[i, j, k] = Qnew
+
+            I1 = I[1, i, j, k]
+            I2 = I[2, i, j, k]
+            I3 = I[3, i, j, k]
+
+            I[1, i, j, k] = 0.99f0 * I1 + 0.01f0 * Cnew
+            I[2, i, j, k] = 0.99f0 * I2 + 0.01f0 * Cnew
+            I[3, i, j, k] = 0.99f0 * I3 + 0.01f0 * Cnew
         end
     end
+
     return
 end
 
