@@ -4,7 +4,7 @@
 struct Field3D
     C::CuArray{Float32,3}      # Consciousness
     Q::CuArray{Float32,3}      # Dual field / matter
-    I::CuArray{SVector{3,Float32},4}  # Interaction / energy flow (vector field)
+    I::CuArray{SVector{3,Float32},3}  # Interaction / energy flow (vector field)
     #I::CuArray{Float32,4}  # laatste dim = 3 voor vector
     ρ::CuArray{Float32,3}      # Charge / density
     τ::CuArray{Float32,3}      # Experienced time
