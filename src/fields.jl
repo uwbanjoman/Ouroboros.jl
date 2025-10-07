@@ -45,16 +45,6 @@ function init_field3D(nx::Int, ny::Int, nz::Int; Δt=0.01f0, Δx=1.0f0, extras=D
     return Field3D(C, Q, I, ρ, τ, Δt, Δx, nx, ny, nz, extras_gpu)
 end
 
-# code with extras added
-function init_field3D(nx, ny, nz; extras=Dict{Symbol,CuArray{Float32,3}}())
-    C = CUDA.rand(Float32, nx, ny, nz)
-    Q = CUDA.zeros(Float32, nx, ny, nz)
-    I = CUDA.zeros(Float32, nx, ny, nz)
-    ρ = CUDA.fill(Float32(1.0), nx, ny, nz)
-    τ = CUDA.fill(Float32(0.0), nx, ny, nz)
-    return Field3D(C, Q, I, ρ, τ, extras)
-end
-
 # ------------------------------
 # Leap-frog Kernel Update
 # ------------------------------
