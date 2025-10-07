@@ -119,7 +119,6 @@ end
 function kernel_leapfrog_gpu!(
     C::CuDeviceArray{Float32,3},
     Q::CuDeviceArray{Float32,3},
-    #I::CuDeviceArray{Float32,4},
     I::CuDeviceArray{SVector{3,Float32},3},
     ρ::CuDeviceArray{Float32,3},
     τ::CuDeviceArray{Float32,3},
@@ -135,18 +134,26 @@ function kernel_leapfrog_gpu!(
         @inbounds begin
             eps = 1e-6f0
 
-            # sum(I[:,i,j,k]) → handmatig uitgeschreven omdat sum niet GPU-compatibel is
-            I_sum = I[1,i,j,k] + I[2,i,j,k] + I[3,i,j,k]
+            Iijk = I[i,j,k]
+            I_sum = Iijk[1] + Iijk[2] + Iijk[3]
 
-            C[i,j,k] += Δt * (Q[i,j,k] - I_sum) / (ρ[i,j,k] + eps)
-            Q[i,j,k] += Δt * (C[i,j,k] - τ[i,j,k])
-            I[1,i,j,k] = 0.99f0 * I[1,i,j,k] + 0.01f0 * C[i,j,k]
-            I[2,i,j,k] = 0.99f0 * I[2,i,j,k] + 0.01f0 * C[i,j,k]
-            I[3,i,j,k] = 0.99f0 * I[3,i,j,k] + 0.01f0 * C[i,j,k]
+            C_new = C[i,j,k] + Δt * (Q[i,j,k] - I_sum) / (ρ[i,j,k] + eps)
+            Q_new = Q[i,j,k] + Δt * (C_new - τ[i,j,k])
+
+            I_new = @SVector [
+                0.99f0 * Iijk[1] + 0.01f0 * C_new,
+                0.99f0 * Iijk[2] + 0.01f0 * C_new,
+                0.99f0 * Iijk[3] + 0.01f0 * C_new
+            ]
+
+            C[i,j,k] = C_new
+            Q[i,j,k] = Q_new
+            I[i,j,k] = I_new
         end
     end
     return
 end
+
 
 # this combines with above kernel_leapfrog_gpu! function
 function leapfrog3D!(F::Field3D)
