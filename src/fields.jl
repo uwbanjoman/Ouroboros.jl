@@ -7,6 +7,7 @@ struct Field3D
     I::CuArray{SVector{3,Float32},3}  # Interaction / energy flow (vector field)
     ρ::CuArray{Float32,3}      # Charge / density
     τ::CuArray{Float32,3}      # Experienced time
+    extras::Dict{Symbol,CuArray{Float32,3}} # domain specific extra fields
     Δt::Float32
     Δx::Float32
     nx::Int
@@ -36,6 +37,16 @@ function init_field3D(nx::Int, ny::Int, nz::Int; Δt=0.01f0, Δx=1.0f0)
     τ = CuArray(τ_cpu)
 
     return Field3D(C, Q, I, ρ, τ, Δt, Δx, nx, ny, nz)
+end
+
+# code with extras added
+function init_field3D(nx, ny, nz; extras=Dict{Symbol,CuArray{Float32,3}}())
+    C = CUDA.rand(Float32, nx, ny, nz)
+    Q = CUDA.zeros(Float32, nx, ny, nz)
+    I = CUDA.zeros(Float32, nx, ny, nz)
+    ρ = CUDA.fill(Float32(1.0), nx, ny, nz)
+    τ = CUDA.fill(Float32(0.0), nx, ny, nz)
+    return Field3D(C, Q, I, ρ, τ, extras)
 end
 
 # ------------------------------
@@ -82,4 +93,47 @@ end
         (C[i,jp,k] - C[i,jm,k])/(2f0*Δx),
         (C[i,j,kp] - C[i,j,km])/(2f0*Δx)
     )
+end
+
+# below here is adjusted code
+# added later, might not be in the right file.
+# this combines with below leapfrog3D!() function
+function kernel_leapfrog!(
+    C::CuDeviceArray{Float32,3},
+    Q::CuDeviceArray{Float32,3},
+    I::CuDeviceArray{Float32,3},
+    ρ::CuDeviceArray{Float32,3},
+    τ::CuDeviceArray{Float32,3},
+    Δt::Float32
+)
+    i = (blockIdx().x-1)*blockDim().x + threadIdx().x
+    j = (blockIdx().y-1)*blockDim().y + threadIdx().y
+    k = (blockIdx().z-1)*blockDim().z + threadIdx().z
+
+    nx, ny, nz = size(C)
+
+    if i <= nx && j <= ny && k <= nz
+        @inbounds begin
+            eps = Float32(1e-6)
+            C[i,j,k] += Δt * (Q[i,j,k] - I[i,j,k]) / (ρ[i,j,k] + eps)
+            Q[i,j,k] += Δt * (C[i,j,k] - τ[i,j,k])
+            I[i,j,k] = Float32(0.99) * I[i,j,k] + Float32(0.01) * C[i,j,k]
+        end
+    end
+    return
+end
+
+# this combines with above kernel_leapfrog! function
+function leapfrog3D!(F::Field3D; Δt::Float32=0.01f0)
+    threads = (8,8,8)
+    blocks = ceil.(Int, size(F.C) ./ threads)
+
+    # kernvelden
+    @cuda threads=threads blocks=blocks kernel_leapfrog!(F.C, F.Q, F.I, F.ρ, F.τ, Δt)
+
+    # extra velden
+    for (_, field) in F.extras
+        @cuda threads=threads blocks=blocks kernel_leapfrog!(field, field, field, field, field, Δt)
+    end
+    return nothing
 end
