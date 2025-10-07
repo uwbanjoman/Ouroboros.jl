@@ -27,8 +27,7 @@ Additional parameters include:
 
 Leap-Frog Integration  
 The fields evolve in time using a leap-frog integrator, chosen for its symmetry and energy-preserving properties.  
-In discrete form:
-
+In discrete form:  
 $C^{n+1}$ = $C^n$ + $\Delta t \$, $f_C$($C^n$, $Q^n$, $I^n$; $\rho$, $\tau$)  
 $Q^{n+1}$ = $Q^n$ + $\Delta t \$, $f_Q$($C^n$, $Q^n$, $I^n$; $\rho$, $\tau$)  
 $I^{n+1}$ = $I^n$ + $\Delta t \$, $f_I$($C^n$, $Q^n$, $I^n$; $\rho$, $\tau$)
