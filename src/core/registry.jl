@@ -19,3 +19,20 @@ end
 Returns all registered modules.
 """
 get_modules() = MODULES
+
+#===
+module Registry
+
+const registered_modules = Ref(Vector{Module}())
+
+export register_module!, get_modules
+
+function register_module!(mod::Module)
+    push!(registered_modules[], mod)
+end
+
+get_modules() = registered_modules[]
+
+end
+#===
+
