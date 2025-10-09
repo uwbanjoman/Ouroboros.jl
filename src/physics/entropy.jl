@@ -14,3 +14,19 @@ function register!()
 end
 
 end # module
+
+#===
+module Entropy
+
+using CUDA
+
+export update!
+
+function update!(F, dt)
+    @. F.C += dt * (abs(F.C) * (1f0 - abs(F.C)))
+end
+
+end
+===#
+
+#
