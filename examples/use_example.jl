@@ -27,3 +27,15 @@ Entropy.register!()
 for t in 1:100
     Evolver.evolve_step!(F, F.Δt)
 end
+
+#===
+using .Registry, .Entropy, .LeapfrogGPU
+
+# Register the entropy module
+register_module!(Entropy)
+
+# Suppose F is your Field3D struct on GPU
+for step in 1:100
+    leapfrog_step!(F, 0.01f0)
+end
+===#
